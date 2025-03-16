@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: "Nunito Sans";
+    src: url(../fonts/Nunito_Sans/NunitoSans-VariableFont_YTLC,opsz,wdth,wght.ttf);
+}
+
+.nunitofont {
+    font-family: "Nunito Sans";
+}
+
+.arkhet-cursor {
+    cursor: url("/cursor.cur"), auto;
+}

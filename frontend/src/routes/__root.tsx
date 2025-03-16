@@ -7,10 +7,15 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  React.useEffect(() => {
+    document.body.classList.add("arkhet-cursor");
+    return () => document.body.classList.remove("arkhet-cursor");
+  }, []);
   return (
     <React.Fragment>
-      <div className="text-8xl">Hello "__root"!</div>
-      <Outlet />
+      <div className="flex flex-col min-h-screen w-full bg-zinc-800 text-white nunitofont overflow-hidden arkhet-cursor">
+        <Outlet />
+      </div>
     </React.Fragment>
   );
 }
