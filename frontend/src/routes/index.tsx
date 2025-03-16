@@ -4,6 +4,7 @@ import TopNav from "../components/TopNav";
 import RightNav from "../components/RightNav";
 import ZoomableComponent from "../components/zoom/ZoomableComponent";
 import { useState } from "react";
+import { ZoomBadge } from "../components/zoom/ZoomBadge";
 
 export function zoomAt(
   wrapperRef: React.RefObject<HTMLDivElement>,
@@ -30,6 +31,7 @@ function RouteComponent() {
   const [isHandToolActive, setIsHandToolActive] = useState(false);
   return (
     <div className="bg-[#2c2c2c] text-white h-screen w-screen overflow-hidden">
+      <ZoomBadge />
       <ZoomableComponent panning={isHandToolActive}>
         <div>
           <div className="w-[5000px] h-[5000px] absolute bg-[#2c2c2c] border rounded -top-[1000px] -left-[1000px] z-0"></div>
