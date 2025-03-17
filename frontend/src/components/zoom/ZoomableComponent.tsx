@@ -9,13 +9,10 @@ export function zoomAt(
 ) {
   const rect = wrapperRef.current?.getBoundingClientRect();
   if (!rect) return;
-
   const viewportCenterX = window.scrollX + window.innerWidth / 2;
   const viewportCenterY = window.scrollY + window.innerHeight / 2;
-
   const x = viewportCenterX - rect.left + window.scrollX;
   const y = viewportCenterY - rect.top + window.scrollY;
-
   scaleAt({ x, y }, scaleFactor);
 }
 
@@ -34,6 +31,24 @@ const ZoomableComponent = (props: {
   const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const { setWrapperRef } = useArtboardStore();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  // Selection Box State
+  const [selectionBox, setSelectionBox] = useState<{
+    startX: number;
+    startY: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    active: boolean;
+  }>({
+    startX: 0,
+    startY: 0,
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    active: false,
+  });
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -87,15 +102,32 @@ const ZoomableComponent = (props: {
   }, []);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!props.panning) return;
-    setIsPanning(true);
-    mouse.current.x = event.clientX;
-    mouse.current.y = event.clientY;
-    event.preventDefault();
+    if (props.panning) {
+      setIsPanning(true);
+      mouse.current.x = event.clientX;
+      mouse.current.y = event.clientY;
+      event.preventDefault();
+    } else {
+      const rect = wrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const startX = event.clientX - rect.left;
+      const startY = event.clientY - rect.top;
+      setSelectionBox({
+        startX,
+        startY,
+        x: startX,
+        y: startY,
+        width: 0,
+        height: 0,
+        active: true,
+      });
+      event.preventDefault();
+    }
   };
 
   const handleMouseUp = () => {
     setIsPanning(false);
+    setSelectionBox((prev) => ({ ...prev, active: false }));
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -106,6 +138,21 @@ const ZoomableComponent = (props: {
       mouse.current.x = event.clientX;
       mouse.current.y = event.clientY;
       event.preventDefault();
+    }
+    if (selectionBox.active) {
+      const rect = wrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const endX = event.clientX - rect.left;
+      const endY = event.clientY - rect.top;
+
+      setSelectionBox((prev) => ({
+        ...prev,
+        x: Math.min(prev.startX, endX),
+        y: Math.min(prev.startY, endY),
+        width: Math.abs(endX - prev.startX),
+        height: Math.abs(endY - prev.startY),
+      }));
     }
   };
 
@@ -134,6 +181,18 @@ const ZoomableComponent = (props: {
       <div id="zoomable-canvas" style={{ transform }}>
         {props.children}
       </div>
+      {selectionBox.active && (
+        <div
+          className="absolute border border-purple-500 bg-purple-500 opacity-10"
+          style={{
+            left: selectionBox.x,
+            top: selectionBox.y,
+            width: selectionBox.width,
+            height: selectionBox.height,
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </div>
   );
 };

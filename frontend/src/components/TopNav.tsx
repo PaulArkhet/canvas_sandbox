@@ -1,7 +1,10 @@
-import { useState } from "react";
+export default function TopNav(props: {
+  isHandToolActive: boolean;
+  setIsHandToolActive: React.Dispatch<React.SetStateAction<boolean>>;
+  toggleHandTool: () => void;
+}) {
+  const { isHandToolActive, setIsHandToolActive, toggleHandTool } = props;
 
-export default function TopNav() {
-  const [isHandToolActive, setIsHandToolActive] = useState(false);
   return (
     <div
       className={`fixed top-0 left-[250px] w-[25%] sm:w-[45%] md:w-[50%] lg:w-[calc(100%_-_500px)] bg-[#242424] border-b border-b-zinc-700 flex items-center justify-between ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"} z-[9999]`}
@@ -70,6 +73,7 @@ export default function TopNav() {
         </button>
         <button
           className={`py-2 px-2 rounded ${isHandToolActive ? "bg-zinc-600" : ""}`}
+          onClick={toggleHandTool}
         >
           <div>
             <svg

@@ -1,11 +1,10 @@
 import { MutableRefObject, useContext, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { twMerge } from "tailwind-merge";
-import { DragAndDropComponent } from "./components/DragAndDropComponent";
-import { GlobalPathSegments } from "./components/GlobalPathSegments";
-import { findOrthogonalPath } from "@/lib/orthogonal-finder";
-import { getMultipageHandlePoint } from "./components/MultipageHandles";
-import { getMultipagePathsQueryOptions } from "@/lib/api/multipage-paths";
+import { DragAndDropComponent } from "./DragAndDropComponent";
+import { GlobalPathSegments } from "./GlobalPathSegments";
+import { findOrthogonalPath } from "./lib/orthogonal-finder";
+import { getMultipageHandlePoint } from "./MultipageHandles";
 import useArtboardStore, {
   PermanentPath,
   Wireframe,
@@ -57,11 +56,8 @@ export function Canvas({
   handleMouseMove,
   handleMouseUp,
   handleCanvasClick,
-  code,
   handleContextMenu,
-  isPrototypeReady,
 }: {
-  code?: string;
   shapes: Wireframe[] | undefined;
   canvasPosition: { x: number; y: number };
   pageRefList: MutableRefObject<HTMLDivElement[]>;
@@ -73,7 +69,6 @@ export function Canvas({
   handleMouseUp: () => void;
   handleCanvasClick: (event: React.MouseEvent) => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  isPrototypeReady: boolean;
 }) {
   const viewContext = useContext(ViewContext);
   const [mousePos, setMousePos] = useState({

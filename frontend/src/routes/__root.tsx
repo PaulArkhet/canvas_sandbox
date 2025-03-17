@@ -12,6 +12,7 @@ function RootComponent() {
     document.body.classList.add("arkhet-cursor");
     return () => document.body.classList.remove("arkhet-cursor");
   }, []);
+
   return (
     <ViewProvider>
       <div className="flex flex-col min-h-screen w-full bg-zinc-800 text-white nunitofont overflow-hidden arkhet-cursor">
