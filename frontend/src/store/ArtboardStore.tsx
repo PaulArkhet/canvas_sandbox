@@ -4,6 +4,8 @@ export type Wireframe = any;
 
 export type HandleType = any;
 
+export type PermanentPath = any;
+
 export type PrototypeScreenshot = {
   id: number;
   xOffset: number;
