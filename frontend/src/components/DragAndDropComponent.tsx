@@ -11,7 +11,8 @@ export default function DragAndDropComponent(props: {
 }) {
   const { shapes, shape, setShapes, isHandToolActive } = props;
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const { selectedShapeId, setSelectedShapeId } = useArtboardStore();
+  const { selectedShapeId, setSelectedShapeId, selectedShapeIds } =
+    useArtboardStore();
 
   return (
     <Rnd
@@ -53,7 +54,11 @@ export default function DragAndDropComponent(props: {
             selectedShapeId == shape.shapeId
               ? "page-focus border border-[#70acdc]"
               : ""
-          } ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
+          } ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}  ${
+            selectedShapeIds.includes(shape.shapeId)
+              ? "page-focus border border-[#70acdc]"
+              : ""
+          }`}
           key={shape.id}
         ></div>
       ) : shape.type === "button" ? (

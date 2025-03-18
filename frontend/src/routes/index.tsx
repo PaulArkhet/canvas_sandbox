@@ -7,8 +7,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { ZoomBadge } from "../components/zoom/ZoomBadge";
 import { ViewContext } from "../components/zoom/ViewContext";
 import useArtboardStore, { Wireframe } from "../store/ArtboardStore";
-import { Rnd } from "react-rnd";
-import { updateShape } from "../components/lib/api/shapes";
 import DragAndDropComponent from "../components/DragAndDropComponent";
 
 export const Route = createFileRoute("/")({
@@ -42,73 +40,6 @@ export function isShapeInPage(shape: Wireframe, page: Wireframe) {
   );
 }
 
-function setupArtboardTree(shapes: Wireframe[]) {
-  // react screenshot needs all components inside of each "frame" to be
-  // children of each other to include them in the screenshot
-  const roots = shapes.filter((shape) => shape.type === "page");
-  const children = shapes.filter((shape) => shape.type !== "page");
-
-  const newRoots = roots.map((root: Wireframe & { children?: Wireframe[] }) => {
-    const newRoot = { ...root };
-    newRoot.children = [];
-    const rootBounds = getBoundsForShape(root);
-    const innerChildren = children.filter((child) => {
-      const childBounds = getBoundsForShape(child);
-      return isInBoundsOfOuterShape(rootBounds, childBounds);
-    });
-    innerChildren.forEach((child) => {
-      const index = children.findIndex(
-        (selectedChild) => selectedChild.id === child.id
-      );
-      children.splice(index, 1);
-      const newChild = { ...child };
-      newChild.xOffset -= root.xOffset;
-      newChild.yOffset -= root.yOffset;
-      newRoot.children!.push(newChild);
-    });
-    return newRoot;
-  });
-  const result = [
-    ...newRoots,
-    ...(children as (Wireframe & { children: undefined })[]),
-  ];
-  return result;
-}
-
-function moveLayer(
-  objects: Wireframe[],
-  targetId: string,
-  direction: "up" | "down"
-): Wireframe[] {
-  // Sort the objects by zIndex in ascending order.
-  const sortedObjects = [...objects].sort((a, b) => a.zIndex - b.zIndex);
-
-  // Find the index of the target object.
-  const targetIndex = sortedObjects.findIndex((obj) => obj.id === targetId);
-  if (targetIndex === -1) {
-    return objects;
-  }
-
-  // Determine the new index based on the direction.
-  const newIndex = direction === "up" ? targetIndex + 1 : targetIndex - 1;
-  if (newIndex < 0 || newIndex >= sortedObjects.length) {
-    return objects;
-  }
-
-  // Remove the target object from its current position.
-  const [targetObj] = sortedObjects.splice(targetIndex, 1);
-  // Insert the target object at the new position.
-  sortedObjects.splice(newIndex, 0, targetObj);
-
-  // Reassign zIndex values so that they reflect the new ordering.
-  const updatedObjects = sortedObjects.map((obj, idx) => ({
-    ...obj,
-    zIndex: idx,
-  }));
-
-  return updatedObjects;
-}
-
 function RouteComponent() {
   const [isHandToolActive, setIsHandToolActive] = useState(false);
   const view = useContext(ViewContext);
@@ -119,31 +50,11 @@ function RouteComponent() {
     x: -1000,
     y: -1000,
   });
-  const pageRefList = useRef<HTMLDivElement[]>([]);
-  const allShapesRefList = useRef<HTMLDivElement[]>([]);
-  const canvasRef = useRef<HTMLDivElement | null>(null);
-  const [contextMenu, setContextMenu] = useState<{
-    visible: boolean;
-    x: number;
-    y: number;
-  } | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
   const [shapes, setShapes] = useState<any[]>([]);
   const { setSelectedShapeId } = useArtboardStore();
 
   function toggleHandTool() {
     setIsHandToolActive(!isHandToolActive);
-  }
-
-  function handleContextMenu(event: React.MouseEvent<HTMLDivElement>) {
-    event.preventDefault();
-    setContextMenu({ visible: true, x: event.clientX, y: event.clientY });
-  }
-
-  function handleClickOutside(event: MouseEvent) {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      setContextMenu(null);
-    }
   }
 
   function handleMouseDown(event: React.MouseEvent) {
@@ -169,9 +80,6 @@ function RouteComponent() {
   }
 
   function handleCanvasClick(event: React.MouseEvent) {
-    const currentTarget = event.currentTarget as HTMLElement;
-    // console.log(event.target, event.currentTarget);
-
     // Deselect any selected shape when clicking on the canvas
     const isMultipageHandle =
       event.target instanceof HTMLElement &&
@@ -186,11 +94,6 @@ function RouteComponent() {
     console.log("detected a canvas click!", event.currentTarget, event.target);
     setSelectedShapeId(null);
   }
-
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     function handleWheel(event: WheelEvent) {
@@ -246,7 +149,7 @@ function RouteComponent() {
       onMouseUp={handleMouseUp}
     >
       <ZoomBadge />
-      <ZoomableComponent panning={isHandToolActive}>
+      <ZoomableComponent panning={isHandToolActive} shapes={shapes}>
         <div
           className={`mouse-follow w-[5000px] h-[5000px] absolute bg-[#2c2c2c] border rounded -top-[1000px] -left-[1000px] z-0 ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
           onMouseDown={handleMouseDown}

@@ -19,6 +19,7 @@ export function zoomAt(
 const ZoomableComponent = (props: {
   children: JSX.Element;
   panning: boolean;
+  shapes: any[];
 }) => {
   const view = useContext(ViewContext);
   if (!view) {
@@ -29,7 +30,8 @@ const ZoomableComponent = (props: {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
   const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const { setWrapperRef } = useArtboardStore();
+  const { setWrapperRef, setSelectedShapeIds, selectedShapeIds } =
+    useArtboardStore();
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   // Selection Box State
   const [selectionBox, setSelectionBox] = useState<{
@@ -135,6 +137,30 @@ const ZoomableComponent = (props: {
   const handleMouseUp = () => {
     setIsPanning(false);
     setSelectionBox((prev) => ({ ...prev, active: false }));
+
+    if (selectionBox.active) {
+      const wrapper = wrapperRef.current;
+      if (!wrapper) return;
+
+      const selectedShapes = props.shapes.filter((shape) => {
+        const shapeBounds = {
+          x: shape.position.x,
+          y: shape.position.y,
+          width: 250, // Assuming fixed width for now
+          height: 250, // Assuming fixed height for now
+        };
+
+        return (
+          shapeBounds.x + shapeBounds.width > selectionBox.x &&
+          shapeBounds.x < selectionBox.x + selectionBox.width &&
+          shapeBounds.y + shapeBounds.height > selectionBox.y &&
+          shapeBounds.y < selectionBox.y + selectionBox.height
+        );
+      });
+
+      setSelectedShapeIds(selectedShapes.map((s) => s.shapeId));
+      console.log(selectedShapeIds);
+    }
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {

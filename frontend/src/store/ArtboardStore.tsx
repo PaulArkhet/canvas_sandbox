@@ -45,6 +45,11 @@ export type ArtboardState = {
   };
   wrapperRef: React.RefObject<HTMLDivElement> | null;
   setWrapperRef: (ref: React.RefObject<HTMLDivElement>) => void;
+  selectedShapeIds: string[]; // Change from single selection
+  setSelectedShapeIds: (ids: string[]) => void;
+  addSelectedShapeId: (id: string) => void;
+  removeSelectedShapeId: (id: string) => void;
+  clearSelection: () => void;
 };
 
 export type TemporaryPath = {
@@ -70,22 +75,7 @@ const useArtboardStore = create<ArtboardState>((set, get) => ({
     undoStack: [],
     redoStack: [],
   },
-  handleTimeTravel: (direction) => {
-    // needs to be refactored
-    /*
-    const { shapeHistory, shapes } = get();
-    if (direction === "undo" && shapeHistory.undoStack.length > 0) {
-      // pop from undo stack into state, add state to redostack
-      const newState = shapeHistory.undoStack.pop();
-      shapeHistory.redoStack.push(shapes);
-      set({ shapeHistory, shapes: newState });
-    } else if (direction === "redo" && shapeHistory.redoStack.length > 0) {
-      const newState = shapeHistory.redoStack.pop();
-      shapeHistory.undoStack.push(shapes);
-      set({ shapeHistory, shapes: newState });
-    }
-    */
-  },
+  handleTimeTravel: (direction) => {},
   addUndoState: (shapes: Wireframe[]) => {
     const { shapeHistory } = get();
     shapeHistory.redoStack = [];
@@ -107,6 +97,19 @@ const useArtboardStore = create<ArtboardState>((set, get) => ({
   temporaryOffset: null,
   wrapperRef: null,
   setWrapperRef: (ref) => set({ wrapperRef: ref }),
+  selectedShapeIds: [], // Change from single selection
+  setSelectedShapeIds: (ids: string[]) => set({ selectedShapeIds: ids }),
+  addSelectedShapeId: (id: string) =>
+    set((state) => ({
+      selectedShapeIds: [...new Set([...state.selectedShapeIds, id])],
+    })),
+  removeSelectedShapeId: (id: string) =>
+    set((state) => ({
+      selectedShapeIds: state.selectedShapeIds.filter(
+        (shapeId) => shapeId !== id
+      ),
+    })),
+  clearSelection: () => set({ selectedShapeIds: [] }),
 }));
 
 export default useArtboardStore;
