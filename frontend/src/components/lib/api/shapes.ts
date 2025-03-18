@@ -4,7 +4,7 @@ export function createShape(shapes: any[], shape: string) {
   const shapeId = shapes.length;
   const type = shape;
   const position = { x: 1650, y: 1300 };
-  shapes.push({ shapeId, type, position });
+  shapes.push({ shapeId, type, position, width: 250, height: 250 });
   console.log(shapes);
 }
 

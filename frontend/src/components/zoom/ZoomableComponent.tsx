@@ -137,28 +137,27 @@ const ZoomableComponent = (props: {
   const handleMouseUp = () => {
     setIsPanning(false);
     setSelectionBox((prev) => ({ ...prev, active: false }));
+    console.log(selectionBox.x);
+    console.log(selectionBox.y);
 
     if (selectionBox.active) {
       const wrapper = wrapperRef.current;
       if (!wrapper) return;
 
-      const selectedShapes = props.shapes.filter((shape) => {
-        const shapeBounds = {
-          x: shape.position.x,
-          y: shape.position.y,
-          width: 250, // Assuming fixed width for now
-          height: 250, // Assuming fixed height for now
-        };
+      setTimeout(() => {
+        const selectedShapes = props.shapes.filter((shape) => {
+          const { x, y } = shape.position;
+          const { width, height } = shape;
+          return (
+            x + width > selectionBox.x + 1000 &&
+            x < selectionBox.x + selectionBox.width + 1000 &&
+            y + height > selectionBox.y + 1000 &&
+            y < selectionBox.y + selectionBox.height + 1000
+          );
+        });
 
-        return (
-          shapeBounds.x + shapeBounds.width > selectionBox.x &&
-          shapeBounds.x < selectionBox.x + selectionBox.width &&
-          shapeBounds.y + shapeBounds.height > selectionBox.y &&
-          shapeBounds.y < selectionBox.y + selectionBox.height
-        );
-      });
-
-      setSelectedShapeIds(selectedShapes.map((s) => s.shapeId));
+        setSelectedShapeIds(selectedShapes.map((s) => s.shapeId));
+      }, 0);
       console.log(selectedShapeIds);
     }
   };

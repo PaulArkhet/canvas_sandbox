@@ -18,31 +18,11 @@ export type PrototypeScreenshot = {
 };
 
 export type ArtboardState = {
-  shapeHistory: {
-    undoStack: Wireframe[][];
-    redoStack: Wireframe[][];
-  };
   isHandToolActive: boolean;
   selectedShapeId: string | null;
   setSelectedShapeId: (args: string | null) => void;
   setIsHandToolActive: (args: boolean) => void;
   toggleHandTool: () => void;
-  handleTimeTravel: (direction: "redo" | "undo") => void;
-  addUndoState: (shapes: Wireframe[]) => void;
-  debugPath: TemporaryPath | null;
-  setDebugPath: (path: TemporaryPath | null) => void;
-  setTemporaryOffset: (
-    temporaryOffset: null | {
-      childrenId: string[];
-      xOffset: number;
-      yOffset: number;
-    }
-  ) => void;
-  temporaryOffset: null | {
-    childrenId: string[];
-    xOffset: number;
-    yOffset: number;
-  };
   wrapperRef: React.RefObject<HTMLDivElement> | null;
   setWrapperRef: (ref: React.RefObject<HTMLDivElement>) => void;
   selectedShapeIds: string[]; // Change from single selection
@@ -67,21 +47,6 @@ export type ArtboardView = {
 };
 
 const useArtboardStore = create<ArtboardState>((set, get) => ({
-  debugPath: null,
-  setDebugPath: (path: TemporaryPath | null) => {
-    set({ debugPath: path });
-  },
-  shapeHistory: {
-    undoStack: [],
-    redoStack: [],
-  },
-  handleTimeTravel: (direction) => {},
-  addUndoState: (shapes: Wireframe[]) => {
-    const { shapeHistory } = get();
-    shapeHistory.redoStack = [];
-    shapeHistory.undoStack.push(shapes);
-    set({ shapeHistory });
-  },
   selectedShapeId: null,
   isHandToolActive: false,
   setSelectedShapeId: (args: any) => {
@@ -93,8 +58,6 @@ const useArtboardStore = create<ArtboardState>((set, get) => ({
     const handToolState = get().isHandToolActive;
     set({ isHandToolActive: !handToolState });
   },
-  setTemporaryOffset: (temporaryOffset) => set({ temporaryOffset }),
-  temporaryOffset: null,
   wrapperRef: null,
   setWrapperRef: (ref) => set({ wrapperRef: ref }),
   selectedShapeIds: [], // Change from single selection

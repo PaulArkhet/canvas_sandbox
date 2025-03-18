@@ -16,7 +16,7 @@ export default function DragAndDropComponent(props: {
 
   return (
     <Rnd
-      size={{ width: 250, height: 250 }}
+      size={{ width: shape.width, height: shape.height }}
       position={shape.position}
       key={shape.id}
       onDragStart={(_, data) => {
