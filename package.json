@@ -2,7 +2,9 @@
   "name": "canvas_sandbox",
   "module": "index.ts",
   "type": "module",
-  "scripts":{"start":"bun --watch app.ts"},
+  "scripts": {
+    "start": "bun --watch app.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -10,6 +12,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "cron": "^4.1.0",
     "hono": "^4.7.4"
   }
 }
