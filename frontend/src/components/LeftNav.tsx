@@ -1,9 +1,14 @@
 import { useState } from "react";
 import logo from "/Arkhet-logo_white 1.png";
 import caretRight from "/iconcaretright.png";
+import { createShape } from "./lib/api/shapes";
 
-export default function LeftNav() {
+export default function LeftNav(props: {
+  shapes: any[];
+  setShapes: React.Dispatch<React.SetStateAction<any[]>>;
+}) {
   const [searchContent, setSearchContent] = useState("");
+  const { shapes, setShapes } = props;
 
   return (
     <div className="fixed top-0 left-0 h-screen w-[250px] bg-zinc-900 overflow-auto arkhet-cursor">
@@ -53,7 +58,12 @@ export default function LeftNav() {
           className="justify-center items-center flex hover:text-[#42A5F5] hover:bg-[#202020] rounded pt-5 transition-all ease-in-out duration-200"
           draggable
         >
-          <button>
+          <button
+            onClick={() => {
+              createShape(shapes, "button");
+              setShapes([...shapes]);
+            }}
+          >
             <svg
               width="46"
               height="17"

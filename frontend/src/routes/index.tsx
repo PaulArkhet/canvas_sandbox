@@ -6,8 +6,10 @@ import ZoomableComponent from "../components/zoom/ZoomableComponent";
 import { useContext, useEffect, useRef, useState } from "react";
 import { ZoomBadge } from "../components/zoom/ZoomBadge";
 import { ViewContext } from "../components/zoom/ViewContext";
-import { Wireframe } from "../store/ArtboardStore";
+import useArtboardStore, { Wireframe } from "../store/ArtboardStore";
 import { Rnd } from "react-rnd";
+import { updateShape } from "../components/lib/api/shapes";
+import DragAndDropComponent from "../components/DragAndDropComponent";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -126,7 +128,8 @@ function RouteComponent() {
     y: number;
   } | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const shapes = [];
+  const [shapes, setShapes] = useState<any[]>([]);
+  const { setSelectedShapeId } = useArtboardStore();
 
   function toggleHandTool() {
     setIsHandToolActive(!isHandToolActive);
@@ -165,6 +168,25 @@ function RouteComponent() {
     setDragStart(null);
   }
 
+  function handleCanvasClick(event: React.MouseEvent) {
+    const currentTarget = event.currentTarget as HTMLElement;
+    // console.log(event.target, event.currentTarget);
+
+    // Deselect any selected shape when clicking on the canvas
+    const isMultipageHandle =
+      event.target instanceof HTMLElement &&
+      event.target.classList.contains("multipage-handle");
+    const isShape = !(
+      event.target instanceof HTMLElement &&
+      event.target.classList.contains("mouse-follow")
+    ); // hacky way to detect a canvas click;
+    if (isMultipageHandle || isShape) {
+      return;
+    }
+    console.log("detected a canvas click!", event.currentTarget, event.target);
+    setSelectedShapeId(null);
+  }
+
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -182,7 +204,12 @@ function RouteComponent() {
       if (event.key === "v") {
         setIsHandToolActive(false);
       }
+      if (event.key === " ") {
+        event.preventDefault();
+        setIsHandToolActive(true);
+      }
     }
+
     function handleKeyUp(event: KeyboardEvent) {
       if (event.key === " ") {
         // Deactivate hand tool on spacebar release
@@ -220,18 +247,32 @@ function RouteComponent() {
     >
       <ZoomBadge />
       <ZoomableComponent panning={isHandToolActive}>
-        <div>
-          <div className="w-[5000px] h-[5000px] absolute bg-[#2c2c2c] border rounded -top-[1000px] -left-[1000px] z-0"></div>
-          <Rnd size={{ width: 250, height: 250 }} position={{ x: 650, y: 300 }}>
-            <div className="h-full w-full border bg-white"></div>
-          </Rnd>
+        <div
+          className={`mouse-follow w-[5000px] h-[5000px] absolute bg-[#2c2c2c] border rounded -top-[1000px] -left-[1000px] z-0 ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={(args) => {
+            handleMouseMove(args);
+          }}
+          onMouseUp={handleCanvasClick}
+        >
+          {shapes.map((shape) => (
+            <DragAndDropComponent
+              shapes={shapes}
+              setShapes={setShapes}
+              shape={shape}
+              isHandToolActive={isHandToolActive}
+              key={shape.shapeId}
+            />
+          ))}
         </div>
       </ZoomableComponent>
-      <LeftNav />
+      <LeftNav shapes={shapes} setShapes={setShapes} />
       <TopNav
         isHandToolActive={isHandToolActive}
         setIsHandToolActive={setIsHandToolActive}
         toggleHandTool={toggleHandTool}
+        shapes={shapes}
+        setShapes={setShapes}
       />
       <RightNav />
     </div>

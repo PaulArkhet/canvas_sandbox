@@ -108,6 +108,13 @@ const ZoomableComponent = (props: {
       mouse.current.y = event.clientY;
       event.preventDefault();
     } else {
+      const isShape = !(
+        event.target instanceof HTMLElement &&
+        event.target.classList.contains("mouse-follow")
+      ); // hacky way to detect a canvas click;
+      if (isShape) {
+        return;
+      }
       const rect = wrapperRef.current?.getBoundingClientRect();
       if (!rect) return;
       const startX = event.clientX - rect.left;

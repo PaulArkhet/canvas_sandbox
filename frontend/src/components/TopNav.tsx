@@ -1,9 +1,19 @@
+import { createShape } from "./lib/api/shapes";
+
 export default function TopNav(props: {
   isHandToolActive: boolean;
   setIsHandToolActive: React.Dispatch<React.SetStateAction<boolean>>;
   toggleHandTool: () => void;
+  shapes: any[];
+  setShapes: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
-  const { isHandToolActive, setIsHandToolActive, toggleHandTool } = props;
+  const {
+    isHandToolActive,
+    setIsHandToolActive,
+    toggleHandTool,
+    shapes,
+    setShapes,
+  } = props;
 
   return (
     <div
@@ -29,7 +39,13 @@ export default function TopNav(props: {
             />
           </svg>
         </button>
-        <button className="py-5 px-2">
+        <button
+          className="py-5 px-2"
+          onClick={() => {
+            createShape(shapes, "page");
+            setShapes([...shapes]);
+          }}
+        >
           <svg
             width="16"
             height="16"
