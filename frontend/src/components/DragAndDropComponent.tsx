@@ -14,14 +14,55 @@ export default function DragAndDropComponent(props: {
   const { selectedShapeId, setSelectedShapeId, selectedShapeIds } =
     useArtboardStore();
 
+  const [initialPositions, setInitialPositions] = useState(new Map());
+
+  const handleDragStart = (shapeId: string, event: any) => {
+    if (selectedShapeIds.includes(shapeId)) {
+      // Store initial positions for all selected shapes
+      setInitialPositions(
+        new Map(
+          props.shapes
+            .filter((shape) => selectedShapeIds.includes(shape.shapeId))
+            .map((shape) => [
+              shape.shapeId,
+              { x: shape.position.x, y: shape.position.y },
+            ])
+        )
+      );
+    }
+  };
+
+  const handleDrag = (shapeId: string, event: any, data: any) => {
+    if (selectedShapeIds.includes(shapeId) && initialPositions.size > 0) {
+      const deltaX = data.x - initialPositions.get(shapeId).x;
+      const deltaY = data.y - initialPositions.get(shapeId).y;
+
+      // Move all selected shapes based on their original positions
+      props.setShapes((prevShapes) =>
+        prevShapes.map((shape) =>
+          selectedShapeIds.includes(shape.shapeId)
+            ? {
+                ...shape,
+                position: {
+                  x: initialPositions.get(shape.shapeId).x + deltaX,
+                  y: initialPositions.get(shape.shapeId).y + deltaY,
+                },
+              }
+            : shape
+        )
+      );
+    }
+  };
+
   return (
     <Rnd
       size={{ width: shape.width, height: shape.height }}
       position={shape.position}
       key={shape.id}
-      onDragStart={(_, data) => {
-        setDragStart({ x: data.x, y: data.y });
+      onDragStart={(e, data) => {
+        handleDragStart(shape.shapeId, e);
       }}
+      onDrag={(e, data) => handleDrag(shape.shapeId, e, data)}
       onDragStop={(_, dragData) => {
         const newX = dragData.x;
         const newY = dragData.y;
