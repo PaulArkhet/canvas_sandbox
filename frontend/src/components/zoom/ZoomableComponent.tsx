@@ -113,8 +113,10 @@ const ZoomableComponent = (props: {
       event.preventDefault();
     } else {
       const isShape = !(
-        event.target instanceof HTMLElement &&
-        event.target.classList.contains("mouse-follow")
+        (event.target instanceof HTMLElement &&
+          event.target.classList.contains("mouse-follow")) ||
+        (event.target instanceof HTMLElement &&
+          event.target.classList.contains("bg-opacity-75"))
       ); // hacky way to detect a canvas click;
       if (isShape) {
         return;
@@ -146,6 +148,7 @@ const ZoomableComponent = (props: {
 
       setTimeout(() => {
         const selectedShapes = props.shapes.filter((shape) => {
+          if (shape.type === "page") return;
           const x = shape.xOffset;
           const y = shape.yOffset;
           const { width, height } = shape;

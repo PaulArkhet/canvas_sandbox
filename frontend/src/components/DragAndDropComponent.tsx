@@ -13,6 +13,9 @@ export default function DragAndDropComponent(props: {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const { selectedShapeId, setSelectedShapeId, selectedShapeIds } =
     useArtboardStore();
+  const [draggingEnabled, setDraggingEnabled] = useState(
+    shape.type === "page" ? false : true
+  );
 
   const [initialPositions, setInitialPositions] = useState(new Map());
 
@@ -56,6 +59,7 @@ export default function DragAndDropComponent(props: {
       size={{ width: shape.width, height: shape.height }}
       position={{ x: shape.xOffset, y: shape.yOffset }}
       key={shape.shapeId}
+      disableDragging={!draggingEnabled || isHandToolActive}
       onDragStart={() => {
         handleDragStart(shape.shapeId);
       }}
@@ -73,7 +77,8 @@ export default function DragAndDropComponent(props: {
         );
       }}
       onMouseDown={(e) => {
-        if (e.detail !== 2) setSelectedShapeId(shape.shapeId);
+        if (e.detail !== 2 || shape.type !== "page")
+          setSelectedShapeId(shape.shapeId);
         console.log(selectedShapeId); // Prevents interference with double-click
       }}
       onMouseUp={(e) => {
@@ -81,7 +86,7 @@ export default function DragAndDropComponent(props: {
           // for dragging path segments between different MultipageHandles, handles the "release" of dragging
           // we need to set the selected shape id to the shape that is being dragged over
           // so that the path is drawn from the correct shape
-          setSelectedShapeId(shape.shapeId);
+          if (shape.type !== "page") setSelectedShapeId(shape.shapeId);
         }
       }}
       className={`${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
@@ -95,18 +100,33 @@ export default function DragAndDropComponent(props: {
       }}
     >
       {shape.type === "page" ? (
-        <div
-          className={`h-full w-full bg-[#262626] bg-opacity-75 rounded-2xl shadow-[0px_0px_4px_2px_rgba(66,165,245,0.25)]  ${
-            selectedShapeId == shape.shapeId
-              ? "page-focus border border-[#70acdc]"
-              : ""
-          } ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}  ${
-            selectedShapeIds.includes(shape.shapeId)
-              ? "page-focus border border-[#70acdc]"
-              : ""
-          }`}
-          key={shape.shapeId}
-        ></div>
+        <>
+          <div
+            className={`pb-5 absolute w-full -top-8 left-2 select-none ${
+              selectedShapeId == shape.shapeId ? "text-sky-200" : ""
+            }`}
+            onMouseDown={() => {
+              setDraggingEnabled(true); // Start dragging
+            }}
+            onMouseUp={() => {
+              setDraggingEnabled(false); // End dragging
+            }}
+          >
+            New Page
+          </div>
+          <div
+            className={`h-full w-full bg-[#262626] bg-opacity-75 rounded-2xl shadow-[0px_0px_4px_2px_rgba(66,165,245,0.25)]  ${
+              selectedShapeId == shape.shapeId
+                ? "page-focus border border-[#70acdc]"
+                : ""
+            } ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}  ${
+              selectedShapeIds.includes(shape.shapeId)
+                ? "page-focus border border-[#70acdc]"
+                : ""
+            }`}
+            key={shape.shapeId}
+          ></div>
+        </>
       ) : shape.type === "button" ? (
         <div
           className={`relative w-full h-full flex items-center flex-col text-center rounded justify-center [container-type:size] bg-white text-black `}
@@ -120,7 +140,7 @@ export default function DragAndDropComponent(props: {
         </div>
       ) : (
         <div
-          className="h-full w-full border bg-[#FFFFFF] bg-opacity-75 rounded-2xl"
+          className="h-full w-full border bg-[#FFFFFF] rounded-2xl"
           key={shape.shapeId}
         ></div>
       )}
