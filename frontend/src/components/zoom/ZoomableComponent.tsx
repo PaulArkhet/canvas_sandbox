@@ -215,7 +215,7 @@ const ZoomableComponent = (props: {
       </div>
       {selectionBox.active && (
         <div
-          className="absolute border border-purple-500 bg-purple-500 opacity-10"
+          className="absolute border border-purple-200 bg-purple-500 opacity-10"
           style={{
             left: selectionBox.x,
             top: selectionBox.y,

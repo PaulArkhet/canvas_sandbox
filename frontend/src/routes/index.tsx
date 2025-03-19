@@ -8,6 +8,8 @@ import { ZoomBadge } from "../components/zoom/ZoomBadge";
 import { ViewContext } from "../components/zoom/ViewContext";
 import useArtboardStore, { Wireframe } from "../store/ArtboardStore";
 import DragAndDropComponent from "../components/DragAndDropComponent";
+import Canvas from "../components/Canvas";
+import { createShape } from "../components/lib/api/shapes";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -41,8 +43,9 @@ export function isShapeInPage(shape: Wireframe, page: Wireframe) {
 }
 
 function RouteComponent() {
+  const { setSelectedShapeId } = useArtboardStore();
   const [isHandToolActive, setIsHandToolActive] = useState(false);
-  const view = useContext(ViewContext);
+  const [shapes, setShapes] = useState<any[]>([]);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -50,8 +53,7 @@ function RouteComponent() {
     x: -1000,
     y: -1000,
   });
-  const [shapes, setShapes] = useState<any[]>([]);
-  const { setSelectedShapeId } = useArtboardStore();
+  const view = useContext(ViewContext);
 
   function toggleHandTool() {
     setIsHandToolActive(!isHandToolActive);
@@ -111,6 +113,10 @@ function RouteComponent() {
         event.preventDefault();
         setIsHandToolActive(true);
       }
+      if (event.key === "p" && !event.ctrlKey) {
+        createShape(shapes, "page");
+        setShapes([...shapes]);
+      }
     }
 
     function handleKeyUp(event: KeyboardEvent) {
@@ -150,24 +156,14 @@ function RouteComponent() {
     >
       <ZoomBadge />
       <ZoomableComponent panning={isHandToolActive} shapes={shapes}>
-        <div
-          className={`mouse-follow w-[5000px] h-[5000px] absolute bg-[#2c2c2c] border rounded -top-[1000px] -left-[1000px] z-0 ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
-          onMouseDown={handleMouseDown}
-          onMouseMove={(args) => {
-            handleMouseMove(args);
-          }}
-          onMouseUp={handleCanvasClick}
-        >
-          {shapes.map((shape) => (
-            <DragAndDropComponent
-              shapes={shapes}
-              setShapes={setShapes}
-              shape={shape}
-              isHandToolActive={isHandToolActive}
-              key={shape.shapeId}
-            />
-          ))}
-        </div>
+        <Canvas
+          shapes={shapes}
+          setShapes={setShapes}
+          isHandToolActive={isHandToolActive}
+          handleMouseDown={handleMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleCanvasClick={handleCanvasClick}
+        />
       </ZoomableComponent>
       <LeftNav shapes={shapes} setShapes={setShapes} />
       <TopNav
