@@ -93,7 +93,6 @@ function RouteComponent() {
     if (isMultipageHandle || isShape) {
       return;
     }
-    console.log("detected a canvas click!", event.currentTarget, event.target);
     setSelectedShapeId(null);
   }
 

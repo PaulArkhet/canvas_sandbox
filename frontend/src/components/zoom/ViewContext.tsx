@@ -11,6 +11,7 @@ interface ViewContextType {
   scaleAt: (at: Position, amount: number) => void;
   scale: number;
   setScale: (scale: number) => void;
+  pos: Position;
 }
 
 export const ViewContext = createContext<ViewContextType | undefined>(
@@ -42,7 +43,9 @@ export const ViewProvider: React.FC<{ children: React.ReactNode }> = ({
   const transform = `matrix(${matrix.join(",")})`;
 
   return (
-    <ViewContext.Provider value={{ transform, pan, scaleAt, scale, setScale }}>
+    <ViewContext.Provider
+      value={{ transform, pan, scaleAt, scale, setScale, pos }}
+    >
       {children}
     </ViewContext.Provider>
   );

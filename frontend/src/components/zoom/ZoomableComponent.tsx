@@ -27,7 +27,8 @@ const ZoomableComponent = (props: {
     throw new Error("ZoomableComponent must be used within a ViewProvider");
   }
 
-  const { transform, pan, scaleAt } = view;
+  const { transform, pan, scaleAt, pos } = view;
+  const scale = useContext(ViewContext)?.scale;
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
   const mouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -138,8 +139,6 @@ const ZoomableComponent = (props: {
   const handleMouseUp = () => {
     setIsPanning(false);
     setSelectionBox((prev) => ({ ...prev, active: false }));
-    console.log(selectionBox.x);
-    console.log(selectionBox.y);
 
     if (selectionBox.active) {
       const wrapper = wrapperRef.current;
@@ -150,17 +149,20 @@ const ZoomableComponent = (props: {
           const x = shape.xOffset;
           const y = shape.yOffset;
           const { width, height } = shape;
+          console.log((selectionBox.x - pos.x + 1000) / scale!);
+          console.log((selectionBox.y - pos.y + 1000) / scale!);
+          console.log(scale);
+
           return (
-            x + width > selectionBox.x + 1000 &&
-            x < selectionBox.x + selectionBox.width + 1000 &&
-            y + height > selectionBox.y + 1000 &&
-            y < selectionBox.y + selectionBox.height + 1000
+            x + width > (selectionBox.x - pos.x) / scale! + 1000 &&
+            x < (selectionBox.x + selectionBox.width - pos.x) / scale! + 1000 &&
+            y + height > (selectionBox.y - pos.y) / scale! + 1000 &&
+            y < (selectionBox.y + selectionBox.height - pos.y) / scale! + 1000
           );
         });
 
         setSelectedShapeIds(selectedShapes.map((s) => s.shapeId));
       }, 0);
-      console.log(selectedShapeIds);
     }
   };
 
