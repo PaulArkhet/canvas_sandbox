@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Rnd } from "react-rnd";
-import { updateShape } from "./lib/api/shapes";
+import { Shape, updateShape } from "./lib/api/shapes";
 import useArtboardStore from "../store/ArtboardStore";
 
 export default function DragAndDropComponent(props: {
-  shapes: any[];
-  shape: any;
-  setShapes: React.Dispatch<React.SetStateAction<any[]>>;
+  shapes: Shape[];
+  shape: Shape;
+  setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
   isHandToolActive: boolean;
 }) {
   const { shapes, shape, setShapes, isHandToolActive } = props;
@@ -16,7 +16,7 @@ export default function DragAndDropComponent(props: {
 
   const [initialPositions, setInitialPositions] = useState(new Map());
 
-  const handleDragStart = (shapeId: string, event: any) => {
+  const handleDragStart = (shapeId: string) => {
     if (selectedShapeIds.includes(shapeId)) {
       // Store initial positions for all selected shapes
       setInitialPositions(
@@ -25,28 +25,25 @@ export default function DragAndDropComponent(props: {
             .filter((shape) => selectedShapeIds.includes(shape.shapeId))
             .map((shape) => [
               shape.shapeId,
-              { x: shape.position.x, y: shape.position.y },
+              { x: shape.xOffset, y: shape.yOffset },
             ])
         )
       );
     }
   };
 
-  const handleDrag = (shapeId: string, event: any, data: any) => {
+  const handleDrag = (shapeId: string, data: any) => {
     if (selectedShapeIds.includes(shapeId) && initialPositions.size > 0) {
       const deltaX = data.x - initialPositions.get(shapeId).x;
       const deltaY = data.y - initialPositions.get(shapeId).y;
 
-      // Move all selected shapes based on their original positions
-      props.setShapes((prevShapes) =>
+      setShapes((prevShapes) =>
         prevShapes.map((shape) =>
           selectedShapeIds.includes(shape.shapeId)
             ? {
                 ...shape,
-                position: {
-                  x: initialPositions.get(shape.shapeId).x + deltaX,
-                  y: initialPositions.get(shape.shapeId).y + deltaY,
-                },
+                xOffset: initialPositions.get(shape.shapeId).x + deltaX,
+                yOffset: initialPositions.get(shape.shapeId).y + deltaY,
               }
             : shape
         )
@@ -57,20 +54,20 @@ export default function DragAndDropComponent(props: {
   return (
     <Rnd
       size={{ width: shape.width, height: shape.height }}
-      position={shape.position}
-      key={shape.id}
-      onDragStart={(e, data) => {
-        handleDragStart(shape.shapeId, e);
+      position={{ x: shape.xOffset, y: shape.yOffset }}
+      key={shape.shapeId}
+      onDragStart={() => {
+        handleDragStart(shape.shapeId);
       }}
-      onDrag={(e, data) => handleDrag(shape.shapeId, e, data)}
+      onDrag={(_, data) => handleDrag(shape.shapeId, data)}
       onDragStop={(_, dragData) => {
         const newX = dragData.x;
         const newY = dragData.y;
-        updateShape(shapes, shape.shapeId, { x: newX, y: newY });
+        updateShape(shapes, shape.shapeId, newX, newY);
         setShapes((prevShapes) =>
           prevShapes.map((s) =>
             s.shapeId === shape.shapeId
-              ? { ...s, position: { x: newX, y: newY } }
+              ? { ...s, xOffset: newX, yOffset: newY }
               : s
           )
         );
@@ -80,7 +77,7 @@ export default function DragAndDropComponent(props: {
         console.log(selectedShapeId); // Prevents interference with double-click
       }}
       onMouseUp={(e) => {
-        if (shape.id !== selectedShapeId) {
+        if (shape.shapeId !== selectedShapeId) {
           // for dragging path segments between different MultipageHandles, handles the "release" of dragging
           // we need to set the selected shape id to the shape that is being dragged over
           // so that the path is drawn from the correct shape
@@ -100,7 +97,7 @@ export default function DragAndDropComponent(props: {
               ? "page-focus border border-[#70acdc]"
               : ""
           }`}
-          key={shape.id}
+          key={shape.shapeId}
         ></div>
       ) : shape.type === "button" ? (
         <div
@@ -116,7 +113,7 @@ export default function DragAndDropComponent(props: {
       ) : (
         <div
           className="h-full w-full border bg-[#FFFFFF] bg-opacity-75 rounded-2xl"
-          key={shape.id}
+          key={shape.shapeId}
         ></div>
       )}
     </Rnd>

@@ -9,7 +9,7 @@ import { ViewContext } from "../components/zoom/ViewContext";
 import useArtboardStore, { Wireframe } from "../store/ArtboardStore";
 import DragAndDropComponent from "../components/DragAndDropComponent";
 import Canvas from "../components/Canvas";
-import { createShape } from "../components/lib/api/shapes";
+import { createShape, Shape } from "../components/lib/api/shapes";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
@@ -45,7 +45,7 @@ export function isShapeInPage(shape: Wireframe, page: Wireframe) {
 function RouteComponent() {
   const { setSelectedShapeId } = useArtboardStore();
   const [isHandToolActive, setIsHandToolActive] = useState(false);
-  const [shapes, setShapes] = useState<any[]>([]);
+  const [shapes, setShapes] = useState<Shape[]>([]);
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
     null
   );

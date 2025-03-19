@@ -1,6 +1,7 @@
 import React, { JSX, useContext, useEffect, useRef, useState } from "react";
 import { ViewContext } from "./ViewContext";
 import useArtboardStore from "../../store/ArtboardStore";
+import { Shape } from "../lib/api/shapes";
 
 export function zoomAt(
   wrapperRef: React.RefObject<HTMLDivElement>,
@@ -19,7 +20,7 @@ export function zoomAt(
 const ZoomableComponent = (props: {
   children: JSX.Element;
   panning: boolean;
-  shapes: any[];
+  shapes: Shape[];
 }) => {
   const view = useContext(ViewContext);
   if (!view) {
@@ -146,7 +147,8 @@ const ZoomableComponent = (props: {
 
       setTimeout(() => {
         const selectedShapes = props.shapes.filter((shape) => {
-          const { x, y } = shape.position;
+          const x = shape.xOffset;
+          const y = shape.yOffset;
           const { width, height } = shape;
           return (
             x + width > selectionBox.x + 1000 &&

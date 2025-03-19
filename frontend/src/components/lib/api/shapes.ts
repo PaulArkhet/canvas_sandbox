@@ -1,17 +1,33 @@
-export type Shape = {};
+export type Shape = {
+  shapeId: string;
+  type: string;
+  width: number;
+  height: number;
+  xOffset: number;
+  yOffset: number;
+};
 
-export function createShape(shapes: any[], shape: string) {
-  const shapeId = shapes.length;
+export function createShape(shapes: Shape[], shape: string) {
+  const shapeId = shapes.length.toString();
   const type = shape;
-  const position = { x: 1650, y: 1300 };
-  shapes.push({ shapeId, type, position, width: 250, height: 250 });
+  const width = 250;
+  const height = 250;
+  const xOffset = 1650;
+  const yOffset = 1300;
+  shapes.push({ shapeId, type, xOffset, yOffset, width, height });
   console.log(shapes);
 }
 
-export function updateShape(shapes: any[], shapeId: number, newPosition: any) {
+export function updateShape(
+  shapes: Shape[],
+  shapeId: string,
+  newX: number,
+  newY: number
+) {
   shapes.map((shape) => {
-    if (shape.id === shapeId) {
-      shape.position = newPosition;
+    if (shape.shapeId === shapeId) {
+      shape.xOffset = newX;
+      shape.yOffset = newY;
     }
   });
 }

@@ -1,12 +1,13 @@
 import DragAndDropComponent from "./DragAndDropComponent";
+import { Shape } from "./lib/api/shapes";
 
 export default function Canvas(props: {
   isHandToolActive: boolean;
   handleMouseDown: (event: React.MouseEvent) => void;
   handleMouseMove: (event: React.MouseEvent) => void;
   handleCanvasClick: (event: React.MouseEvent) => void;
-  shapes: any[];
-  setShapes: React.Dispatch<React.SetStateAction<any[]>>;
+  shapes: Shape[];
+  setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
 }) {
   const {
     shapes,
