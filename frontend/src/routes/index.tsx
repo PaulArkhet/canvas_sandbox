@@ -113,7 +113,11 @@ function RouteComponent() {
         setIsHandToolActive(true);
       }
       if (event.key === "p" && !event.ctrlKey) {
-        createShape(shapes, "page");
+        createShape(shapes, "page", 600, 300);
+        setShapes([...shapes]);
+      }
+      if (event.key === "b" && !event.ctrlKey) {
+        createShape(shapes, "button", 100, 50);
         setShapes([...shapes]);
       }
     }

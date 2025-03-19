@@ -85,6 +85,14 @@ export default function DragAndDropComponent(props: {
         }
       }}
       className={`${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
+      style={{
+        cursor: isHandToolActive ? "grab" : "arkhet-cursor",
+        border:
+          (selectedShapeId === shape.shapeId && shape.type !== "page") ||
+          selectedShapeIds.includes(shape.shapeId)
+            ? "2px solid #70acdc"
+            : "2px solid transparent",
+      }}
     >
       {shape.type === "page" ? (
         <div
@@ -101,7 +109,7 @@ export default function DragAndDropComponent(props: {
         ></div>
       ) : shape.type === "button" ? (
         <div
-          className={`relative w-full h-full flex items-center flex-col text-center rounded justify-center [container-type:size]`}
+          className={`relative w-full h-full flex items-center flex-col text-center rounded justify-center [container-type:size] bg-white text-black `}
         >
           <span
             className={`text-[50cqh] text-center w-[90%] overflow-hidden text-ellipsis whitespace-nowrap select-none $

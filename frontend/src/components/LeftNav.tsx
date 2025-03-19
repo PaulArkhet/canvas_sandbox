@@ -60,7 +60,7 @@ export default function LeftNav(props: {
         >
           <button
             onClick={() => {
-              createShape(shapes, "button");
+              createShape(shapes, "button", 100, 50);
               setShapes([...shapes]);
             }}
           >

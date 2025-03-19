@@ -7,11 +7,16 @@ export type Shape = {
   yOffset: number;
 };
 
-export function createShape(shapes: Shape[], shape: string) {
+export function createShape(
+  shapes: Shape[],
+  shape: string,
+  w: number,
+  h: number
+) {
   const shapeId = shapes.length.toString();
   const type = shape;
-  const width = 250;
-  const height = 250;
+  const width = w;
+  const height = h;
   const xOffset = 1650;
   const yOffset = 1300;
   shapes.push({ shapeId, type, xOffset, yOffset, width, height });
