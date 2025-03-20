@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { Shape, updateShape } from "./lib/api/shapes";
 import useArtboardStore from "../store/ArtboardStore";
@@ -8,6 +8,11 @@ export default function DragAndDropComponent(props: {
   shape: Shape;
   setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
   isHandToolActive: boolean;
+  mousePos: { x: number; y: number };
+  pageRefList?: MutableRefObject<HTMLDivElement[]>;
+  canvasRef: MutableRefObject<HTMLDivElement | null>;
+  allShapesRefList?: MutableRefObject<HTMLDivElement[]>;
+  handleMouseUp: () => void;
 }) {
   const { shapes, shape, setShapes, isHandToolActive } = props;
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -74,9 +79,7 @@ export default function DragAndDropComponent(props: {
           )
         );
       }}
-      className={`${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
       style={{
-        cursor: isHandToolActive ? "grab" : "arkhet-cursor",
         border:
           (selectedShapeId === shape.shapeId && shape.type !== "page") ||
           selectedShapeIds.includes(shape.shapeId)
@@ -98,7 +101,7 @@ export default function DragAndDropComponent(props: {
           <div
             className={`pb-5 absolute w-full -top-8 left-2 ${
               selectedShapeId == shape.shapeId ? "text-sky-200" : ""
-            }`}
+            } `}
           >
             New Page
           </div>
@@ -107,7 +110,7 @@ export default function DragAndDropComponent(props: {
               selectedShapeId == shape.shapeId
                 ? "page-focus border border-[#70acdc]"
                 : ""
-            } ${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}  ${
+            } ${
               selectedShapeIds.includes(shape.shapeId)
                 ? "page-focus border border-[#70acdc]"
                 : ""

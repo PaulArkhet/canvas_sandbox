@@ -42,7 +42,7 @@ export default function TopNav(props: {
         <button
           className="py-5 px-2"
           onClick={() => {
-            createShape(shapes, "page");
+            createShape(shapes, "page", 600, 300);
             setShapes([...shapes]);
           }}
         >

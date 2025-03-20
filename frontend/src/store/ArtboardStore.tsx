@@ -25,7 +25,7 @@ export type ArtboardState = {
   toggleHandTool: () => void;
   wrapperRef: React.RefObject<HTMLDivElement> | null;
   setWrapperRef: (ref: React.RefObject<HTMLDivElement>) => void;
-  selectedShapeIds: string[]; // Change from single selection
+  selectedShapeIds: string[];
   setSelectedShapeIds: (ids: string[]) => void;
   addSelectedShapeId: (id: string) => void;
   removeSelectedShapeId: (id: string) => void;

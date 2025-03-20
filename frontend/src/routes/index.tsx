@@ -42,6 +42,39 @@ export function isShapeInPage(shape: Wireframe, page: Wireframe) {
   );
 }
 
+function setupArtboardTree(shapes: Shape[]) {
+  // react screenshot needs all components inside of each "frame" to be
+  // children of each other to include them in the screenshot
+  const roots = shapes.filter((shape) => shape.type === "page");
+  const children = shapes.filter((shape) => shape.type !== "page");
+
+  const newRoots = roots.map((root: Wireframe & { children?: Wireframe[] }) => {
+    const newRoot = { ...root };
+    newRoot.children = [];
+    const rootBounds = getBoundsForShape(root);
+    const innerChildren = children.filter((child) => {
+      const childBounds = getBoundsForShape(child);
+      return isInBoundsOfOuterShape(rootBounds, childBounds);
+    });
+    innerChildren.forEach((child) => {
+      const index = children.findIndex(
+        (selectedChild) => selectedChild.shapeId === child.shapeId
+      );
+      children.splice(index, 1);
+      const newChild = { ...child };
+      newChild.xOffset -= root.xOffset;
+      newChild.yOffset -= root.yOffset;
+      newRoot.children!.push(newChild);
+    });
+    return newRoot;
+  });
+  const result = [
+    ...newRoots,
+    ...(children as (Wireframe & { children: undefined })[]),
+  ];
+  return result;
+}
+
 function RouteComponent() {
   const { setSelectedShapeId } = useArtboardStore();
   const [isHandToolActive, setIsHandToolActive] = useState(false);
@@ -53,6 +86,9 @@ function RouteComponent() {
     x: -1000,
     y: -1000,
   });
+  const pageRefList = useRef<HTMLDivElement[]>([]);
+  const allShapesRefList = useRef<HTMLDivElement[]>([]);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
   const view = useContext(ViewContext);
 
   function toggleHandTool() {
@@ -168,6 +204,23 @@ function RouteComponent() {
           handleCanvasClick={handleCanvasClick}
         />
       </ZoomableComponent>
+      <div className="z-[-10] absolute overflow-hidden">
+        {shapes &&
+          setupArtboardTree(shapes).map((shape) => (
+            <DragAndDropComponent
+              mousePos={{ x: 0, y: 0 }}
+              key={shape.id}
+              shape={shape}
+              pageRefList={pageRefList}
+              canvasRef={canvasRef}
+              allShapesRefList={allShapesRefList}
+              isHandToolActive={isHandToolActive}
+              handleMouseUp={() => null}
+              shapes={shapes}
+              setShapes={setShapes}
+            />
+          ))}
+      </div>
       <LeftNav shapes={shapes} setShapes={setShapes} />
       <TopNav
         isHandToolActive={isHandToolActive}
