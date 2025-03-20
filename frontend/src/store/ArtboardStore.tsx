@@ -23,6 +23,18 @@ export type ArtboardState = {
   setSelectedShapeId: (args: string | null) => void;
   setIsHandToolActive: (args: boolean) => void;
   toggleHandTool: () => void;
+  setTemporaryOffset: (
+    temporaryOffset: null | {
+      childrenId: string[];
+      xOffset: number;
+      yOffset: number;
+    }
+  ) => void;
+  temporaryOffset: null | {
+    childrenId: string[];
+    xOffset: number;
+    yOffset: number;
+  };
   wrapperRef: React.RefObject<HTMLDivElement> | null;
   setWrapperRef: (ref: React.RefObject<HTMLDivElement>) => void;
   selectedShapeIds: string[];
@@ -58,6 +70,8 @@ const useArtboardStore = create<ArtboardState>((set, get) => ({
     const handToolState = get().isHandToolActive;
     set({ isHandToolActive: !handToolState });
   },
+  setTemporaryOffset: (temporaryOffset) => set({ temporaryOffset }),
+  temporaryOffset: null,
   wrapperRef: null,
   setWrapperRef: (ref) => set({ wrapperRef: ref }),
   selectedShapeIds: [], // Change from single selection
