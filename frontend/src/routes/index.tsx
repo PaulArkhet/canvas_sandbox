@@ -202,6 +202,9 @@ function RouteComponent() {
           handleMouseDown={handleMouseDown}
           handleMouseMove={handleMouseMove}
           handleCanvasClick={handleCanvasClick}
+          pageRefList={pageRefList}
+          canvasRef={canvasRef}
+          allShapesRefList={allShapesRefList}
         />
       </ZoomableComponent>
       <div className="z-[-10] absolute overflow-hidden">
@@ -209,7 +212,7 @@ function RouteComponent() {
           setupArtboardTree(shapes).map((shape) => (
             <DragAndDropComponent
               mousePos={{ x: 0, y: 0 }}
-              key={shape.id}
+              key={shape.shapeId}
               shape={shape}
               pageRefList={pageRefList}
               canvasRef={canvasRef}

@@ -1,3 +1,4 @@
+import { MutableRefObject } from "react";
 import DragAndDropComponent from "./DragAndDropComponent";
 import { Shape } from "./lib/api/shapes";
 
@@ -8,6 +9,9 @@ export default function Canvas(props: {
   handleCanvasClick: (event: React.MouseEvent) => void;
   shapes: Shape[];
   setShapes: React.Dispatch<React.SetStateAction<Shape[]>>;
+  pageRefList?: MutableRefObject<HTMLDivElement[]>;
+  canvasRef: MutableRefObject<HTMLDivElement | null>;
+  allShapesRefList?: MutableRefObject<HTMLDivElement[]>;
 }) {
   const {
     shapes,
@@ -16,6 +20,9 @@ export default function Canvas(props: {
     handleMouseMove,
     handleCanvasClick,
     setShapes,
+    pageRefList,
+    canvasRef,
+    allShapesRefList,
   } = props;
 
   return (
@@ -29,11 +36,16 @@ export default function Canvas(props: {
     >
       {shapes.map((shape) => (
         <DragAndDropComponent
+          mousePos={{ x: 0, y: 0 }}
+          key={shape.shapeId}
+          shape={shape}
+          pageRefList={pageRefList}
+          canvasRef={canvasRef}
+          allShapesRefList={allShapesRefList}
+          isHandToolActive={isHandToolActive}
+          handleMouseUp={() => null}
           shapes={shapes}
           setShapes={setShapes}
-          shape={shape}
-          isHandToolActive={isHandToolActive}
-          key={shape.shapeId}
         />
       ))}
     </div>

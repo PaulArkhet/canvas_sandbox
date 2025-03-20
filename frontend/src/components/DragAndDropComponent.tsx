@@ -22,6 +22,37 @@ export default function DragAndDropComponent(props: {
 
   const [initialPositions, setInitialPositions] = useState(new Map());
 
+  function handleUpdateRefList(el: HTMLDivElement) {
+    if (!el || !props.pageRefList) return;
+    // console.log("updating ref list...", props.pageRefList);
+
+    const { pageRefList, allShapesRefList } = props;
+    const elId = shape.shapeId.toString();
+
+    const updateRefList = (refList: MutableRefObject<HTMLDivElement[]>) => {
+      const currentList = refList.current || [];
+      const index = currentList.findIndex((refEl) => refEl?.id === elId);
+
+      let newList;
+      if (index === -1) {
+        // Element not found, add it to the array
+        newList = [...currentList, el];
+      } else {
+        // Element found, replace it
+        newList = [...currentList];
+        newList[index] = el;
+      }
+
+      // Replace the reference with the new array
+      refList.current = newList;
+    };
+
+    if (shape.type === "page") {
+      pageRefList && updateRefList(pageRefList);
+    }
+    allShapesRefList && updateRefList(allShapesRefList);
+  }
+
   const handleDragStart = (shapeId: string) => {
     if (selectedShapeIds.includes(shapeId)) {
       // Store initial positions for all selected shapes
@@ -96,47 +127,54 @@ export default function DragAndDropComponent(props: {
         }
       }}
     >
-      {shape.type === "page" ? (
-        <>
-          <div
-            className={`pb-5 absolute w-full -top-8 left-2 ${
-              selectedShapeId == shape.shapeId ? "text-sky-200" : ""
-            } `}
-          >
-            New Page
-          </div>
-          <div
-            className={`h-full w-full bg-[#262626] bg-opacity-75 rounded-2xl shadow-[0px_0px_4px_2px_rgba(66,165,245,0.25)]  ${
-              selectedShapeId == shape.shapeId
-                ? "page-focus border border-[#70acdc]"
-                : ""
-            } ${
-              selectedShapeIds.includes(shape.shapeId)
-                ? "page-focus border border-[#70acdc]"
-                : ""
-            }`}
-            key={shape.shapeId}
-            onMouseEnter={() => setDraggingEnabled(false)}
-            onMouseLeave={() => setDraggingEnabled(true)}
-          ></div>
-        </>
-      ) : shape.type === "button" ? (
-        <div
-          className={`relative w-full h-full flex items-center flex-col text-center rounded justify-center [container-type:size] bg-white text-black `}
-        >
-          <span
-            className={`text-[50cqh] text-center w-[90%] overflow-hidden text-ellipsis whitespace-nowrap select-none $
+      <div
+        id={shape.shapeId.toString()}
+        className={`h-full relative shape`}
+        ref={handleUpdateRefList}
+        data-id={shape.shapeId}
+      >
+        {shape.type === "page" ? (
+          <>
+            <div
+              className={`pb-5 absolute w-full -top-8 left-2 ${
+                selectedShapeId == shape.shapeId ? "text-sky-200" : ""
+              } `}
+            >
+              New Page
+            </div>
+            <div
+              className={`h-full w-full bg-[#262626] bg-opacity-75 rounded-2xl shadow-[0px_0px_4px_2px_rgba(66,165,245,0.25)]  ${
+                selectedShapeId == shape.shapeId
+                  ? "page-focus border border-[#70acdc]"
+                  : ""
+              } ${
+                selectedShapeIds.includes(shape.shapeId)
+                  ? "page-focus border border-[#70acdc]"
+                  : ""
               }`}
+              key={shape.shapeId}
+              onMouseEnter={() => setDraggingEnabled(false)}
+              onMouseLeave={() => setDraggingEnabled(true)}
+            ></div>
+          </>
+        ) : shape.type === "button" ? (
+          <div
+            className={`relative w-full h-full flex items-center flex-col text-center rounded justify-center [container-type:size] bg-white text-black `}
           >
-            Submit
-          </span>
-        </div>
-      ) : (
-        <div
-          className="h-full w-full border bg-[#FFFFFF] rounded-2xl"
-          key={shape.shapeId}
-        ></div>
-      )}
+            <span
+              className={`text-[50cqh] text-center w-[90%] overflow-hidden text-ellipsis whitespace-nowrap select-none $
+              }`}
+            >
+              Submit
+            </span>
+          </div>
+        ) : (
+          <div
+            className="h-full w-full border bg-[#FFFFFF] rounded-2xl"
+            key={shape.shapeId}
+          ></div>
+        )}
+      </div>
     </Rnd>
   );
 }

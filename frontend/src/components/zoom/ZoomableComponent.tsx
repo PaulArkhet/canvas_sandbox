@@ -94,7 +94,7 @@ const ZoomableComponent = (props: {
         // const x = viewportCenterX - rect.left + window.scrollX;
         // const y = viewportCenterY - rect.top + window.scrollY;
         const scaleFactor = event.key === "=" ? 1.05 : 1 / 1.05;
-        // @ts-ignore
+        //@ts-ignore
         zoomAt(wrapperRef, scaleAt, scaleFactor);
         event.preventDefault();
       }
