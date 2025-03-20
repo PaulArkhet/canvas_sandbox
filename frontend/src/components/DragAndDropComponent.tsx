@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { Shape, updateShape } from "./lib/api/shapes";
 import useArtboardStore from "../store/ArtboardStore";
@@ -54,11 +54,15 @@ export default function DragAndDropComponent(props: {
     }
   };
 
+  useEffect(() => {
+    console.log("Dragging enabled changed:", draggingEnabled);
+  }, [draggingEnabled]);
+
   return (
     <Rnd
       size={{ width: shape.width, height: shape.height }}
       position={{ x: shape.xOffset, y: shape.yOffset }}
-      key={shape.shapeId}
+      key={`${shape.shapeId}-${draggingEnabled}`}
       disableDragging={!draggingEnabled || isHandToolActive}
       onDragStart={() => {
         handleDragStart(shape.shapeId);
@@ -77,8 +81,7 @@ export default function DragAndDropComponent(props: {
         );
       }}
       onMouseDown={(e) => {
-        if (e.detail !== 2 || shape.type !== "page")
-          setSelectedShapeId(shape.shapeId);
+        if (e.detail !== 2) setSelectedShapeId(shape.shapeId);
         console.log(selectedShapeId); // Prevents interference with double-click
       }}
       onMouseUp={(e) => {
@@ -86,7 +89,7 @@ export default function DragAndDropComponent(props: {
           // for dragging path segments between different MultipageHandles, handles the "release" of dragging
           // we need to set the selected shape id to the shape that is being dragged over
           // so that the path is drawn from the correct shape
-          if (shape.type !== "page") setSelectedShapeId(shape.shapeId);
+          setSelectedShapeId(shape.shapeId);
         }
       }}
       className={`${isHandToolActive ? "cursor-grab" : "arkhet-cursor"}`}
@@ -105,11 +108,16 @@ export default function DragAndDropComponent(props: {
             className={`pb-5 absolute w-full -top-8 left-2 select-none ${
               selectedShapeId == shape.shapeId ? "text-sky-200" : ""
             }`}
-            onMouseDown={() => {
-              setDraggingEnabled(true); // Start dragging
+            onMouseDownCapture={(e) => {
+              e.stopPropagation(); // Ensure this element gets the event
+              setDraggingEnabled(true);
+              setSelectedShapeId(shape.shapeId);
+              console.log("Mouse down captured", draggingEnabled);
             }}
-            onMouseUp={() => {
-              setDraggingEnabled(false); // End dragging
+            onMouseUpCapture={(e) => {
+              e.stopPropagation(); // Ensure this element gets the event
+              setDraggingEnabled(false);
+              console.log("Mouse up captured", draggingEnabled);
             }}
           >
             New Page
